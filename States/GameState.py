@@ -418,7 +418,7 @@ class GameState(State):
             card_images = State.deckManager.load_card_images(self.playerInfo.levelManager.next_unfinished_sublevel())
             suits = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
             ranks = [Rank.ACE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN,
-                     Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING]
+            Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING]
             start_x, start_y = 100, 100
             spacing_x, spacing_y = 75, 100
 

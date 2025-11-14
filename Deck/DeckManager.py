@@ -148,7 +148,7 @@ class DeckManager:
         cardImages = self.load_card_images(subLevel)
         deck = []
 
-        
+
 
         return deck
 
@@ -158,7 +158,10 @@ class DeckManager:
         jokerImages = self.loadJokerImages()
         deckJokers = []
 
-        priceMap = {
+        priceMap = {"The Joker": 4, "Michael Myers": 6, "Fibonacci": 5,
+                    "Gauntlet": 5, "Ogre": 5, "Straw Hat": 5,
+                    "Hog Rider": 4, "? Block": 5, "Hogwarts": 6,
+                    "802": 6
         }
 
         for name, image in jokerImages.items():

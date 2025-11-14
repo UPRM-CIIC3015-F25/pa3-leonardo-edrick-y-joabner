@@ -782,6 +782,7 @@ class GameState(State):
         #       self.activated_jokers.add("joker card name")
         #   The last line ensures the Joker is visibly active and its effects are properly applied.
 
+
         procrastinate = False
 
         # commit modified player multiplier and chips
@@ -810,6 +811,9 @@ class GameState(State):
         for i, card in enumerate(self.cardsSelectedList):
             w, h = card.scaled_image.get_width(), card.scaled_image.get_height()
             self.cardsSelectedRect[card] = pygame.Rect(start_x + i * spacing, start_y, w, h)
+
+
+        if
 
     # TODO (TASK 4) - The function should remove one selected card from the player's hand at a time, calling itself
     #   again after each removal until no selected cards remain (base case). Once all cards have been

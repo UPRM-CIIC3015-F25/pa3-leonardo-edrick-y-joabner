@@ -1,3 +1,5 @@
+# import...
+
 import pygame
 import random
 from States.Menus.DebugState import DebugState
@@ -813,7 +815,9 @@ class GameState(State):
             self.cardsSelectedRect[card] = pygame.Rect(start_x + i * spacing, start_y, w, h)
 
 
-        if
+        if "The Joker" in owned:
+            hand_mult += 4
+            self.activated_jokers.add("The Joker")
 
     # TODO (TASK 4) - The function should remove one selected card from the player's hand at a time, calling itself
     #   again after each removal until no selected cards remain (base case). Once all cards have been

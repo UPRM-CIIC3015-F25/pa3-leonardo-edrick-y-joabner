@@ -138,7 +138,7 @@ class DeckManager:
         return jokers
 
     # ---------- Deck creation ----------
-    # TODO (TASK 1): Implement a function that creates a full deck of Cards.
+    # Done (TASK 1): Implement a function that creates a full deck of Cards.
     #   Loop through all possible suits and ranks, retrieve the corresponding image
     #   from the card_images dictionary using (suit, rank) as the key, and create a Card
     #   object for each valid combination. If a matching image is not found, skip that card.

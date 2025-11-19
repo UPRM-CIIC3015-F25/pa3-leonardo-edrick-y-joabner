@@ -14,7 +14,7 @@ class PlanetCard:
     def sellPrice(self):
         return int(self.price * 0.6)
 
-# TODO (TASK 6.1): Implement the Planet Card system for Balatro.
+# Done (TASK 6.1): Implement the Planet Card system for Balatro.
 #   Create a dictionary called PLANETS that stores all available PlanetCard objects.
 #   Each entry should use the planet's name as the key and a PlanetCard instance as the value.
 #   Each PlanetCard must include:

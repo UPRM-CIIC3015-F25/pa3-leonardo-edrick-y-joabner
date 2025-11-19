@@ -150,9 +150,9 @@ class DeckManager:
         for suit in Suit:
             for rank in Rank:
                 image = cardImages.get((suit, rank))
-
                 if image is None:
                     continue
+
                 deck.append(Card(suit = suit, rank = rank, image = image))
 
         return deck

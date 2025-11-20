@@ -28,7 +28,7 @@ class GameState(State):
         self.playerInfo = player # playerInfo object
         self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.curSubLevel))
         self.hand = State.deckManager.dealCards(self.deck, 8)
-        self.cards = {}
+        self.hand = {}
         
         self.jokerDeck = State.deckManager.createJokerDeck()
         self.playerJokers = []
@@ -119,7 +119,7 @@ class GameState(State):
         self.scoreBreakdownTextSurface = None
         self.pending_round_add = 0      # amount to add to roundScore when timer expires
 
-        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
 
         # ------ Debug Overlay Setup -------
         self.debugState = DebugState(game_state=self)
@@ -165,7 +165,7 @@ class GameState(State):
             self.used = []
             self.cardsSelectedList = []
             self.cardsSelectedRect = {}
-            self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+            self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
             self.deckManager.resetDeck = False  # Clear the flag
 
         # Check if level is finished and transition to LevelSelectState
@@ -275,11 +275,11 @@ class GameState(State):
         self.screen.blit(deckContainer, self.deckContainer.topleft)
 
     def drawCardsInHand(self):
-        for card in self.cards:
+        for card in self.hand:
             if self.playHandActive and card in self.cardsSelectedList:
                 continue
             img_to_draw = getattr(card, "scaled_image", card.image)
-            State.screen.blit(img_to_draw, self.cards[card])
+            State.screen.blit(img_to_draw, self.hand[card])
         self.drawCardTooltip()
 
     def drawCenterCards(self):
@@ -511,17 +511,17 @@ class GameState(State):
         if events.type == pygame.MOUSEBUTTONDOWN and not self.playHandActive:
             mousePos = pygame.mouse.get_pos()
             # Iterate in reverse to select the top-most card first
-            for card in reversed(list(self.cards.keys())):
-                if self.cards[card].collidepoint(mousePos):
+            for card in reversed(list(self.hand.keys())):
+                if self.hand[card].collidepoint(mousePos):
                     if not card.isSelected:
                         if len(self.cardsSelectedList) < 5:
                             card.isSelected = True
-                            self.cards[card].y -= 50
+                            self.hand[card].y -= 50
                             self.cardsSelectedList.append(card)
                             self.select_sfx.play()
                     else:
                         card.isSelected = False
-                        self.cards[card].y += 50
+                        self.hand[card].y += 50
                         self.cardsSelectedList.remove(card)
                         self.deselect_sfx.play()
                     return  # Stop after interacting with one card
@@ -557,29 +557,35 @@ class GameState(State):
     #   until the entire hand is ordered correctly.
     def SortCards(self, sort_by: str = "suit"):
         suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
-        n = len(self.cards)
+        n = len(self.hand)
         for i in range(n - 1):
             for j in range(i + 1, n):
-                hand1 = self.hand[i]
-                hand2 = self.hand[j]
+                card1 = self.hand[i]
+                card2 = self.hand[j]
 
                 if sort_by == "rank":
-                    if hand1.rank.value > hand2.rank.value or (
-                        hand1.rank.value == hand2.rank.value and suitOrder.index(hand1.suit) > suitOrder.index(hand2.suit)
+                    if card1.rank.value > card2.rank.value or (
+                        card1.rank.value == card2.rank.value and suitOrder.index(card1.suit) > suitOrder.index(card2.suit)
                     ):
-                        self.cards[i], self.cards[j] = self.cards[j], self.cards[i]
+                        self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
 
-        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+                else:
+                    if suitOrder.index(card1.suit) > suitOrder.index(card2.suit) or (
+                        suitOrder.index(card1.suit) == suitOrder.index(card2.suit) and card1.rank.value > card2.rank.value
+                    ):
+                        self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
+
+        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
 
     def checkHoverCards(self):
         mousePos = pygame.mouse.get_pos()
-        for card, rect in self.cards.items():
+        for card, rect in self.hand.items():
             if rect.collidepoint(mousePos):
                 break
     
     def drawCardTooltip(self):
         mousePos = pygame.mouse.get_pos()
-        for card, rect in self.cards.items():
+        for card, rect in self.hand.items():
             if rect.collidepoint(mousePos):
                 tooltip_text = f"{card.rank.name.title()} of {card.suit.name.title()} ({card.chips} Chips)"
                 font = self.playerInfo.textFont1
@@ -837,4 +843,4 @@ class GameState(State):
     #   recursion finishes, reset card selections, clear any display text or tracking lists, and
     #   update the visual layout of the player's hand.
     def discardCards(self, removeFromHand: bool):
-        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)

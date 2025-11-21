@@ -557,7 +557,9 @@ class GameState(State):
     #   until the entire hand is ordered correctly.
     def SortCards(self, sort_by: str = "suit"):
         suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
+
         n = len(self.hand)
+
         for i in range(n - 1):
             for j in range(i + 1, n):
                 card1 = self.hand[i]
@@ -575,7 +577,9 @@ class GameState(State):
                     ):
                         self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
 
-        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
+        self.cards = self.hand
+
+        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
 
     def checkHoverCards(self):
         mousePos = pygame.mouse.get_pos()

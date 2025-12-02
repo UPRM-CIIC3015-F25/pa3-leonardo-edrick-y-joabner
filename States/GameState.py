@@ -555,6 +555,8 @@ class GameState(State):
     #   Create a 'suitOrder' list (Hearts, Clubs, Diamonds, Spades), then use nested loops to compare each card
     #   with the ones after it. Depending on the mode, sort by rank first or suit first, swapping cards when needed
     #   until the entire hand is ordered correctly.
+
+    # Still in progress...
     def SortCards(self, sort_by: str = "suit"):
         suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
 
@@ -562,22 +564,22 @@ class GameState(State):
 
         for i in range(n - 1):
             for j in range(i + 1, n):
-                card1 = self.hand[i]
-                card2 = self.hand[j]
+                cards1 = self.hand[i]
+                cards2 = self.hand[j]
 
                 if sort_by == "rank":
-                    if card1.rank.value > card2.rank.value or (
-                        card1.rank.value == card2.rank.value and suitOrder.index(card1.suit) > suitOrder.index(card2.suit)
+                    if cards1.rank.value > cards2.rank.value or (
+                        cards1.rank.value == cards2.rank.value and suitOrder.index(cards1.suit) > suitOrder.index(cards2.suit)
                     ):
                         self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
 
                 else:
-                    if suitOrder.index(card1.suit) > suitOrder.index(card2.suit) or (
-                        suitOrder.index(card1.suit) == suitOrder.index(card2.suit) and card1.rank.value > card2.rank.value
+                    if suitOrder.index(cards1.suit) > suitOrder.index(cards2.suit) or (
+                        suitOrder.index(cards1.suit) == suitOrder.index(cards2.suit) and cards1.rank.value > cards2.rank.value
                     ):
                         self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
 
-        self.cards = self.hand
+        self.cards = list(self.hand)
 
         self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
 

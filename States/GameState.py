@@ -551,12 +551,11 @@ class GameState(State):
                 y -= 50
             cardsDict[card] = pygame.Rect(x, y, new_w, new_h)
 
-    # TODO (TASK 2) - Implement a basic card-sorting system without using built-in sort functions.
+    # Done (TASK 2) - Implement a basic card-sorting system without using built-in sort functions.
     #   Create a 'suitOrder' list (Hearts, Clubs, Diamonds, Spades), then use nested loops to compare each card
     #   with the ones after it. Depending on the mode, sort by rank first or suit first, swapping cards when needed
     #   until the entire hand is ordered correctly.
 
-    # Still in progress...
     def SortCards(self, sort_by: str = "suit"):
         suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
 

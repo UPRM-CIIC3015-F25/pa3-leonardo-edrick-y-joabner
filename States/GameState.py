@@ -558,7 +558,6 @@ class GameState(State):
 
     def SortCards(self, sort_by: str = "suit"):
         suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
-
         n = len(self.hand)
 
         for i in range(n - 1):
@@ -568,19 +567,18 @@ class GameState(State):
 
                 if sort_by == "rank":
                     if cards1.rank.value > cards2.rank.value or (
-                        cards1.rank.value == cards2.rank.value and suitOrder.index(cards1.suit) > suitOrder.index(cards2.suit)
+                            cards1.rank.value == cards2.rank.value and
+                            suitOrder.index(cards1.suit) > suitOrder.index(cards2.suit)
                     ):
                         self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
-
                 else:
                     if suitOrder.index(cards1.suit) > suitOrder.index(cards2.suit) or (
-                        suitOrder.index(cards1.suit) == suitOrder.index(cards2.suit) and cards1.rank.value > cards2.rank.value
+                            suitOrder.index(cards1.suit) == suitOrder.index(cards2.suit) and
+                            cards1.rank.value > cards2.rank.value
                     ):
                         self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
 
-        self.cards = list(self.hand)
-
-        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
 
     def checkHoverCards(self):
         mousePos = pygame.mouse.get_pos()
@@ -848,4 +846,7 @@ class GameState(State):
     #   recursion finishes, reset card selections, clear any display text or tracking lists, and
     #   update the visual layout of the player's hand.
     def discardCards(self, removeFromHand: bool):
+
+
+
         self.updateCards(400, 520, self.hand, self.hand, scale=1.2)

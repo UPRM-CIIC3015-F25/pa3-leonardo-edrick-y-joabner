@@ -29,7 +29,7 @@ class GameState(State):
         self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.curSubLevel))
         self.hand = State.deckManager.dealCards(self.deck, 8)
         self.hand = {}
-        
+
         self.jokerDeck = State.deckManager.createJokerDeck()
         self.playerJokers = []
         self.jokers = {}
@@ -558,25 +558,32 @@ class GameState(State):
 
     def SortCards(self, sort_by: str = "suit"):
         suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
-        n = len(self.hand)
+
+        cards = list(self.hand.keys())
+        n = len(cards)
 
         for i in range(n - 1):
             for j in range(i + 1, n):
-                cards1 = self.hand[i]
-                cards2 = self.hand[j]
+                card1 = cards[i]
+                card2 = cards[j]
 
                 if sort_by == "rank":
-                    if cards1.rank.value > cards2.rank.value or (
-                            cards1.rank.value == cards2.rank.value and
-                            suitOrder.index(cards1.suit) > suitOrder.index(cards2.suit)
+                    if (
+                            card1.rank.value > card2.rank.value or
+                            (card1.rank.value == card2.rank.value and
+                            suitOrder.index(card1.suit) > suitOrder.index(card2.suit))
                     ):
-                        self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
+                        cards[i], cards[j] = cards[j], cards[i]
+
                 else:
-                    if suitOrder.index(cards1.suit) > suitOrder.index(cards2.suit) or (
-                            suitOrder.index(cards1.suit) == suitOrder.index(cards2.suit) and
-                            cards1.rank.value > cards2.rank.value
+                    if (
+                            suitOrder.index(card1.suit) > suitOrder.index(card2.suit) or
+                            (suitOrder.index(card1.suit) == suitOrder.index(card2.suit) and
+                            card1.rank.value > card2.rank.value)
                     ):
-                        self.hand[i], self.hand[j] = self.hand[j], self.hand[i]
+                        cards[i], cards[j] = cards[j], cards[i]
+
+        self.hand = {card: self.hand[card] for card in cards}
 
         self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
 

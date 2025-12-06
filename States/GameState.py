@@ -847,6 +847,34 @@ class GameState(State):
     #   update the visual layout of the player's hand.
     def discardCards(self, removeFromHand: bool):
 
+        if len(self.cardsSelectedList) == 0:
+            missing = 8 - len(self.hand)
 
+            if missing > 0:
+                new_cards = State.deckManager.dealCards(
+                    self.deck,
+                    missing,
+                    self.playerInfo.levelManager.surSublevel
+                )
 
-        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
+                self._addNewCards(new_cards)
+
+            self.cardsSelectedRect.clear()
+            self._resetSelections(list(self.hand.keys()))
+            self.cardsSelectedList.clear()
+
+            self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
+            return
+
+        card = self.cardsSelectedList.pop(0)
+
+        if removeFromHand:
+            self.used.append(card)
+
+        if card in self.hand:
+            del self.hand[card]
+
+        card.isSelected = False
+
+        self.discardCards(removeFromHand)
+

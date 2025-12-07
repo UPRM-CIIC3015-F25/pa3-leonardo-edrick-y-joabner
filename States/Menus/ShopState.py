@@ -93,7 +93,7 @@ class ShopState(State):
         
         return desc_map.get(getattr(joker_obj, 'name', ''), "No description available.")
 
-    # TODO (TASK 6.2): Implement the HAND_SCORES dictionary to define all poker hand types and their base stats.
+    # Done (TASK 6.2): Implement the HAND_SCORES dictionary to define all poker hand types and their base stats.
     #   Each key should be the name of a hand (e.g., "Two Pair", "Straight"), and each value should be a dictionary
     #   containing its "chips", "multiplier", and "level" fields.
     #   Remember: the Sun upgrades all hands, while other planets upgrade only their specific one.

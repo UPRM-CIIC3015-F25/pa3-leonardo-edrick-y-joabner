@@ -138,7 +138,7 @@ class DeckManager:
         return jokers
 
     # ---------- Deck creation ----------
-    # TODO (TASK 1): Implement a function that creates a full deck of Cards.
+    # Done (TASK 1): Implement a function that creates a full deck of Cards.
     #   Loop through all possible suits and ranks, retrieve the corresponding image
     #   from the card_images dictionary using (suit, rank) as the key, and create a Card
     #   object for each valid combination. If a matching image is not found, skip that card.
@@ -146,15 +146,27 @@ class DeckManager:
     def createDeck(self, subLevel: SubLevel = None):
         cardImages = self.load_card_images(subLevel)
         deck = []
+
+        for suit in Suit:
+            for rank in Rank:
+                image = cardImages.get((suit, rank))
+                if image is None:
+                    continue
+
+                deck.append(Card(suit = suit, rank = rank, image = image))
+
         return deck
 
-    # TODO (TASK 5.1): Complete the priceMap variable by assigning each joker a price.
+    # Done (TASK 5.1): Complete the priceMap variable by assigning each joker a price.
     #   The key should represent the joker's name, and the value should be the joker's price.
     def createJokerDeck(self): # Creates a deck of jokers based on the loaded sprites
         jokerImages = self.loadJokerImages()
         deckJokers = []
 
-        priceMap = {
+        priceMap = {"The Joker": 4, "Michael Myers": 6, "Fibonacci": 5,
+                    "Gauntlet": 5, "Ogre": 5, "Straw Hat": 5,
+                    "Hog Rider": 4, "? Block": 5, "Hogwarts": 6,
+                    "802": 6
         }
 
         for name, image in jokerImages.items():

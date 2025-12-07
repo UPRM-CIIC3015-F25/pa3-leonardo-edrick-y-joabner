@@ -1,3 +1,5 @@
+# import...
+
 import pygame
 import random
 from States.Menus.DebugState import DebugState
@@ -26,8 +28,8 @@ class GameState(State):
         self.playerInfo = player # playerInfo object
         self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.curSubLevel))
         self.hand = State.deckManager.dealCards(self.deck, 8)
-        self.cards = {}
-        
+        self.hand = {}
+
         self.jokerDeck = State.deckManager.createJokerDeck()
         self.playerJokers = []
         self.jokers = {}
@@ -117,7 +119,7 @@ class GameState(State):
         self.scoreBreakdownTextSurface = None
         self.pending_round_add = 0      # amount to add to roundScore when timer expires
 
-        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
 
         # ------ Debug Overlay Setup -------
         self.debugState = DebugState(game_state=self)
@@ -163,7 +165,7 @@ class GameState(State):
             self.used = []
             self.cardsSelectedList = []
             self.cardsSelectedRect = {}
-            self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+            self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
             self.deckManager.resetDeck = False  # Clear the flag
 
         # Check if level is finished and transition to LevelSelectState
@@ -273,11 +275,11 @@ class GameState(State):
         self.screen.blit(deckContainer, self.deckContainer.topleft)
 
     def drawCardsInHand(self):
-        for card in self.cards:
+        for card in self.hand:
             if self.playHandActive and card in self.cardsSelectedList:
                 continue
             img_to_draw = getattr(card, "scaled_image", card.image)
-            State.screen.blit(img_to_draw, self.cards[card])
+            State.screen.blit(img_to_draw, self.hand[card])
         self.drawCardTooltip()
 
     def drawCenterCards(self):
@@ -418,7 +420,7 @@ class GameState(State):
             card_images = State.deckManager.load_card_images(self.playerInfo.levelManager.next_unfinished_sublevel())
             suits = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
             ranks = [Rank.ACE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN,
-                     Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING]
+            Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING]
             start_x, start_y = 100, 100
             spacing_x, spacing_y = 75, 100
 
@@ -509,17 +511,17 @@ class GameState(State):
         if events.type == pygame.MOUSEBUTTONDOWN and not self.playHandActive:
             mousePos = pygame.mouse.get_pos()
             # Iterate in reverse to select the top-most card first
-            for card in reversed(list(self.cards.keys())):
-                if self.cards[card].collidepoint(mousePos):
+            for card in reversed(list(self.hand.keys())):
+                if self.hand[card].collidepoint(mousePos):
                     if not card.isSelected:
                         if len(self.cardsSelectedList) < 5:
                             card.isSelected = True
-                            self.cards[card].y -= 50
+                            self.hand[card].y -= 50
                             self.cardsSelectedList.append(card)
                             self.select_sfx.play()
                     else:
                         card.isSelected = False
-                        self.cards[card].y += 50
+                        self.hand[card].y += 50
                         self.cardsSelectedList.remove(card)
                         self.deselect_sfx.play()
                     return  # Stop after interacting with one card
@@ -549,23 +551,51 @@ class GameState(State):
                 y -= 50
             cardsDict[card] = pygame.Rect(x, y, new_w, new_h)
 
-    # TODO (TASK 2) - Implement a basic card-sorting system without using built-in sort functions.
+    # Done (TASK 2) - Implement a basic card-sorting system without using built-in sort functions.
     #   Create a 'suitOrder' list (Hearts, Clubs, Diamonds, Spades), then use nested loops to compare each card
     #   with the ones after it. Depending on the mode, sort by rank first or suit first, swapping cards when needed
     #   until the entire hand is ordered correctly.
+
     def SortCards(self, sort_by: str = "suit"):
-        suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]         # Define the order of suits
-        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+        suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
+
+        cards = list(self.hand.keys())
+        n = len(cards)
+
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                card1 = cards[i]
+                card2 = cards[j]
+
+                if sort_by == "rank":
+                    if (
+                            card1.rank.value > card2.rank.value or
+                            (card1.rank.value == card2.rank.value and
+                            suitOrder.index(card1.suit) > suitOrder.index(card2.suit))
+                    ):
+                        cards[i], cards[j] = cards[j], cards[i]
+
+                else:
+                    if (
+                            suitOrder.index(card1.suit) > suitOrder.index(card2.suit) or
+                            (suitOrder.index(card1.suit) == suitOrder.index(card2.suit) and
+                            card1.rank.value > card2.rank.value)
+                    ):
+                        cards[i], cards[j] = cards[j], cards[i]
+
+        self.hand = {card: self.hand[card] for card in cards}
+
+        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
 
     def checkHoverCards(self):
         mousePos = pygame.mouse.get_pos()
-        for card, rect in self.cards.items():
+        for card, rect in self.hand.items():
             if rect.collidepoint(mousePos):
                 break
     
     def drawCardTooltip(self):
         mousePos = pygame.mouse.get_pos()
-        for card, rect in self.cards.items():
+        for card, rect in self.hand.items():
             if rect.collidepoint(mousePos):
                 tooltip_text = f"{card.rank.name.title()} of {card.suit.name.title()} ({card.chips} Chips)"
                 font = self.playerInfo.textFont1
@@ -783,6 +813,64 @@ class GameState(State):
 
         procrastinate = False
 
+        if "The Joker" in owned:
+            hand_mult += 4
+            self.activated_jokers.add("The Joker")
+
+        if "Michael Myers" in owned:
+            rand_mult = random.randint(0, 23)
+            hand_mult += rand_mult
+            self.activated_jokers.add("Michael Myers")
+
+        if "Fibonacci" in owned:
+            fib_ranks = {Rank.ACE, Rank.TWO, Rank.THREE, Rank.FIVE, Rank.EIGHT}
+            fib_count = 0
+
+            for c in sel:
+                if c.rank in fib_ranks:
+                    fib_count += 1
+
+            hand_mult += fib_count * 8
+            self.activated_jokers.add("Fibonacci")
+
+        if "Gauntlet" in owned:
+            total_chips += 250
+            self.playerInfo.amountOfHands = max(0, self.playerInfo.amountOfHands - 2)
+            self.activated_jokers.add("Gauntlet")
+
+        if "Ogre" in owned:
+            hand_mult += 3 * len(owned)
+            self.activated_jokers.add("Ogre")
+
+        if "StrawHat" in owned:
+            hands_played = len(self.playedHandNameList)
+            total_chips += max(0, 100 - 5 * hands_played)
+            self.activated_jokers.add("StrawHat")
+
+        if "Hog Rider" in owned:
+            if hand_name == "Straight":
+                total_chips += 100
+                self.activated_jokers.add("Hog Rider")
+
+        if "? Block" in owned:
+            if len(used_cards) == 4:
+                total_chips+= 4
+                self.activated_jokers.add("? Block")
+
+        if "Hogwarts" in owned:
+            ace_count = 0
+            for c in sel:
+                if c.rank == Rank.ACE:
+                    ace_count += 1
+            hand_mult += ace_count * 4
+            total_chips += ace_count * 20
+            self.activated_jokers.add("Hogwarts")
+
+        if "802" in owned:
+            if self.playerInfo.amountOfHands == 0:
+                procrastinate = True
+            self.activated_jokers.add("802")
+
         # commit modified player multiplier and chips
         self.playerInfo.playerMultiplier = hand_mult
         self.playerInfo.playerChips = total_chips
@@ -810,6 +898,11 @@ class GameState(State):
             w, h = card.scaled_image.get_width(), card.scaled_image.get_height()
             self.cardsSelectedRect[card] = pygame.Rect(start_x + i * spacing, start_y, w, h)
 
+
+        if "The Joker" in owned:
+            hand_mult += 4
+            self.activated_jokers.add("The Joker")
+
     # TODO (TASK 4) - The function should remove one selected card from the player's hand at a time, calling itself
     #   again after each removal until no selected cards remain (base case). Once all cards have been
     #   discarded, draw new cards to refill the hand back to 8 cards. Use helper functions but AVOID using
@@ -817,4 +910,35 @@ class GameState(State):
     #   recursion finishes, reset card selections, clear any display text or tracking lists, and
     #   update the visual layout of the player's hand.
     def discardCards(self, removeFromHand: bool):
-        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
+
+        if len(self.cardsSelectedList) == 0:
+            missing = 8 - len(self.hand)
+
+            if missing > 0:
+                new_cards = State.deckManager.dealCards(
+                    self.deck,
+                    missing,
+                    self.playerInfo.levelManager.surSublevel
+                )
+
+                self._addNewCards(new_cards)
+
+            self.cardsSelectedRect.clear()
+            self._resetSelections(list(self.hand.keys()))
+            self.cardsSelectedList.clear()
+
+            self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
+            return
+
+        card = self.cardsSelectedList.pop(0)
+
+        if removeFromHand:
+            self.used.append(card)
+
+        if card in self.hand:
+            del self.hand[card]
+
+        card.isSelected = False
+
+        self.discardCards(removeFromHand)
+

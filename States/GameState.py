@@ -804,7 +804,7 @@ class GameState(State):
 
         # ------------------- Apply Joker effects -------------------
         owned = set(self.playerJokers)
-        # TODO (TASK 5.2): Let the Joker mayhem begin! Implement each Joker’s effect using the Joker table as reference.
+        # Done (TASK 5.2): Let the Joker mayhem begin! Implement each Joker’s effect using the Joker table as reference.
         #   Follow this structure for consistency:
         #   if "joker card name" in owned:
         #       # Apply that Joker’s effect
@@ -903,7 +903,7 @@ class GameState(State):
             hand_mult += 4
             self.activated_jokers.add("The Joker")
 
-    # TODO (TASK 4) - The function should remove one selected card from the player's hand at a time, calling itself
+    # Done (TASK 4) - The function should remove one selected card from the player's hand at a time, calling itself
     #   again after each removal until no selected cards remain (base case). Once all cards have been
     #   discarded, draw new cards to refill the hand back to 8 cards. Use helper functions but AVOID using
     #   iterations (no for/while loops) — the recursion itself must handle repetition. After the

@@ -40,7 +40,7 @@ def evaluate_hand(hand: list[Card]):
         return "Four of a kind"
     if counts[0] == 3 and counts[1] >= 2:
         return "Full House"
-    if isFlush:
+    if isFlushÑ
         return "Flush"
     if isStraight:
         return "Straight"

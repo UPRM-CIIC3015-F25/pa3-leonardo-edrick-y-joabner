@@ -1,6 +1,6 @@
 from Cards.Card import Card, Rank
 
-# TODO (TASK 3): Implement a function that evaluates a player's poker hand.
+# Done (TASK 3): Implement a function that evaluates a player's poker hand.
 #   Loop through all cards in the given 'hand' list and collect their ranks and suits.
 #   Use a dictionary to count how many times each rank appears to detect pairs, three of a kind, or four of a kind.
 #   Sort these counts from largest to smallest. Use another dictionary to count how many times each suit appears to check

@@ -578,6 +578,7 @@ class GameState(State):
     def SortCards(self, sort_by: str = "suit"):
         suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
 
+
         cards = list(self.hand.keys())
         n = len(cards)
 

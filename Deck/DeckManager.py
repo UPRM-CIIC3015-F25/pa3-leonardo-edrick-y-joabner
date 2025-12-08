@@ -146,6 +146,8 @@ class DeckManager:
     def createDeck(self, subLevel: SubLevel = None):
         cardImages = self.load_card_images(subLevel)
         deck = []
+        Suit =
+        Rank =
 
         for suit in Suit:
             for rank in Rank:

@@ -240,7 +240,7 @@ class GameState(State):
         self.debugState.update()
 
     def draw(self):
-        # --- Call funcions ---
+        # --- Call functions ---
         self.playerInfo.update()
         self.drawDeckContainer()
         self.drawCardsInHand()
@@ -526,7 +526,7 @@ class GameState(State):
                         self.deselect_sfx.play()
                     return  # Stop after interacting with one card
 
-    # TODO (TASK 7) - Rewrite this function so that it calculates the player's gold reward *recursively*.
+    # Done (TASK 7) - Rewrite this function so that it calculates the player's gold reward *recursively*.
     #   The recursion should progress through each step of the reward process (base reward, bonus for overkill, etc.)
     #   by calling itself with updated parameters or stages instead of using loops.
     #   Each recursive call should handle a single part of the reward logic, and the final base case should

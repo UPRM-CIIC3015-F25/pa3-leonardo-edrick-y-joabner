@@ -103,14 +103,14 @@ class ShopState(State):
         if planet.name == "Sun":
             for h in keys:
                 HAND_SCORES[h]["chips"] += planet.chips
-                HAND_SCORES[h]["multiplier"] += planet.multiplier
+                HAND_SCORES[h]["multiplier"] += planet.mult
                 HAND_SCORES[h]["level"] += 1
 
         else:
             for h in keys:
                 if h in planet.description:
                     HAND_SCORES[h]["chips"] += planet.chips
-                    HAND_SCORES[h]["multiplier"] += planet.multiplier
+                    HAND_SCORES[h]["multiplier"] += planet.mult
                     HAND_SCORES[h]["level"] += 1
                     break
 

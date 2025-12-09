@@ -60,7 +60,7 @@ class LevelManager():
     def next_unfinished_sublevel(self, index=0):
         if index >= len(self.curLevel):
             return None
-        elif not self.curLevel[index]:
+        elif not self.curLevel[index].finished:
             return self.curLevel[index]
         else:
             return self.next_unfinished_sublevel(index + 1)

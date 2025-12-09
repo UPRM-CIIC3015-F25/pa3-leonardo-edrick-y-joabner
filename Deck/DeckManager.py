@@ -147,13 +147,8 @@ class DeckManager:
         cardImages = self.load_card_images(subLevel)
         deck = []
 
-        for suit in Suit:
-            for rank in Rank:
-                image = cardImages.get((suit, rank))
-                if image is None:
-                    continue
-
-                deck.append(Card(suit = suit, rank = rank, image = image))
+        for card,cardImages in cardImages.items():
+            deck.append(Card(suit=card[0], rank=card[1], image=cardImages))
 
         return deck
 

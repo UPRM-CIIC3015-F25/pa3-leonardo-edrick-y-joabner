@@ -1,5 +1,3 @@
-# import...
-
 import pygame
 import random
 from States.Menus.DebugState import DebugState
@@ -7,7 +5,6 @@ from States.Core.StateClass import State
 from Cards.Card import Suit, Rank
 from States.Core.PlayerInfo import PlayerInfo
 from Deck.HandEvaluator import evaluate_hand
-
 
 HAND_SCORES = {
     "Straight Flush": {"chips": 100, "multiplier": 8, "level": 1},
@@ -21,24 +18,26 @@ HAND_SCORES = {
     "High Card": {"chips": 5, "multiplier": 1, "level": 1},
 }
 
+
 class GameState(State):
     def __init__(self, nextState: str = "", player: PlayerInfo = None):
         super().__init__(nextState)
         # ----------------------------Deck and Hand initialization----------------------------
-        self.playerInfo = player # playerInfo object
-        self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.curSubLevel))
+        self.playerInfo = player  # playerInfo object
+        self.deck = State.deckManager.shuffleDeck(
+            State.deckManager.createDeck(self.playerInfo.levelManager.curSubLevel))
         self.hand = State.deckManager.dealCards(self.deck, 8)
-        self.hand = {}
+        self.cards = {}
 
         self.jokerDeck = State.deckManager.createJokerDeck()
         self.playerJokers = []
         self.jokers = {}
         # track which jokers activated for the current played hand (used to offset their draw)
         self.activated_jokers = set()
-        
+
         # for joker in self.jokerDeck:
         #     print(joker.name)
-        
+
         self.cardsSelectedList = []
         self.cardsSelectedRect = {}
         self.playedHandNameList = ['']
@@ -113,13 +112,13 @@ class GameState(State):
         # ----------------------------Play Hand Logic-----------------------------------------
         self.playHandActive = False
         self.playHandStartTime = 0
-        self.playHandDuration = 5000   # show chips/mult for 5 seconds
+        self.playHandDuration = 5000  # show chips/mult for 5 seconds
         self.playedHandName = ""
         self.playedHandTextSurface = None
         self.scoreBreakdownTextSurface = None
-        self.pending_round_add = 0      # amount to add to roundScore when timer expires
+        self.pending_round_add = 0  # amount to add to roundScore when timer expires
 
-        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
+        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
 
         # ------ Debug Overlay Setup -------
         self.debugState = DebugState(game_state=self)
@@ -160,12 +159,14 @@ class GameState(State):
 
         # Check if we need to reset deck (coming back from LevelSelectState)
         if self.deckManager.resetDeck:
-            self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.next_unfinished_sublevel()))
-            self.hand = State.deckManager.dealCards(self.deck, 8, self.playerInfo.levelManager.next_unfinished_sublevel())
+            self.deck = State.deckManager.shuffleDeck(
+                State.deckManager.createDeck(self.playerInfo.levelManager.next_unfinished_sublevel()))
+            self.hand = State.deckManager.dealCards(self.deck, 8,
+                                                    self.playerInfo.levelManager.next_unfinished_sublevel())
             self.used = []
             self.cardsSelectedList = []
             self.cardsSelectedRect = {}
-            self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
+            self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
             self.deckManager.resetDeck = False  # Clear the flag
 
         # Check if level is finished and transition to LevelSelectState
@@ -178,18 +179,20 @@ class GameState(State):
             self.drawDeckPile()
             self.drawJokers()
             self.drawDeckContainer()
-            self.screen.blit(self.tvOverlay,(0,0))
+            self.screen.blit(self.tvOverlay, (0, 0))
 
             State.screenshot = self.screen.copy()
             State.player_info = self.playerInfo
             self.isFinished = True
-            self.deck = State.deckManager.shuffleDeck(State.deckManager.createDeck(self.playerInfo.levelManager.next_unfinished_sublevel()))
-            self.hand = State.deckManager.dealCards(self.deck, 8, self.playerInfo.levelManager.next_unfinished_sublevel())
+            self.deck = State.deckManager.shuffleDeck(
+                State.deckManager.createDeck(self.playerInfo.levelManager.next_unfinished_sublevel()))
+            self.hand = State.deckManager.dealCards(self.deck, 8,
+                                                    self.playerInfo.levelManager.next_unfinished_sublevel())
             self.playerInfo.amountOfHands = 4
             self.nextState = "ShopState"
 
             return
-        
+
         # Handle boss level music switching
         bossName = self.playerInfo.levelManager.curSubLevel.bossLevel
         if bossName and not self.isBossActive:
@@ -198,7 +201,7 @@ class GameState(State):
         elif not bossName and self.isBossActive:
             self.isBossActive = False
             self.switchToNormalTheme()
-            
+
         # Handle play hand timing
         if self.playHandActive and self.playHandStartTime > 0:
             curTime = pygame.time.get_ticks()
@@ -225,14 +228,13 @@ class GameState(State):
                         if card not in self.cardsSelectedList:
                             posiblesCardToDiscard.append(card)
 
-                    discardCount = min(2, len(posiblesCardToDiscard)) # what happends if less than 2 Cards available?
+                    discardCount = min(2, len(posiblesCardToDiscard))  # what happends if less than 2 Cards available?
                     if discardCount > 0:
                         cardsToDiscard = random.sample(posiblesCardToDiscard, discardCount)
                         for c in cardsToDiscard:
-                                self.used.append(c)
-                                self.hand.remove(c)
-                                self.deselect_sfx.play()
-
+                            self.used.append(c)
+                            self.hand.remove(c)
+                            self.deselect_sfx.play()
 
                 self.discardCards(removeFromHand=True)
         self.draw()
@@ -240,7 +242,7 @@ class GameState(State):
         self.debugState.update()
 
     def draw(self):
-        # --- Call functions ---
+        # --- Call funcions ---
         self.playerInfo.update()
         self.drawDeckContainer()
         self.drawCardsInHand()
@@ -275,11 +277,11 @@ class GameState(State):
         self.screen.blit(deckContainer, self.deckContainer.topleft)
 
     def drawCardsInHand(self):
-        for card in self.hand:
+        for card in self.cards:
             if self.playHandActive and card in self.cardsSelectedList:
                 continue
             img_to_draw = getattr(card, "scaled_image", card.image)
-            State.screen.blit(img_to_draw, self.hand[card])
+            State.screen.blit(img_to_draw, self.cards[card])
         self.drawCardTooltip()
 
     def drawCenterCards(self):
@@ -356,7 +358,8 @@ class GameState(State):
 
         # count/title text (keeps old placement just under container)
         jokerTitleText = self.playerInfo.textFont1.render((str(len(self.playerJokers))) + "/ 2", True, 'white')
-        self.screen.blit(jokerTitleText, (self.jokerContainer.x + 1, self.jokerContainer.y + self.jokerContainer.height + 0))
+        self.screen.blit(jokerTitleText,
+                         (self.jokerContainer.x + 1, self.jokerContainer.y + self.jokerContainer.height + 0))
 
     def drawDeckPile(self):
         pileContainer = pygame.Surface(self.pileContainer.size, pygame.SRCALPHA)
@@ -420,7 +423,7 @@ class GameState(State):
             card_images = State.deckManager.load_card_images(self.playerInfo.levelManager.next_unfinished_sublevel())
             suits = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
             ranks = [Rank.ACE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN,
-            Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING]
+                     Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING]
             start_x, start_y = 100, 100
             spacing_x, spacing_y = 75, 100
 
@@ -438,10 +441,11 @@ class GameState(State):
                     if img:
                         x = start_x + col * spacing_x
                         y = start_y + row * spacing_y
-                        self.screen.blit(img, (x,y))
+                        self.screen.blit(img, (x, y))
 
-                    if (suit, rank)  in unusable: #or (suit, rank) in deck_selected:
-                        rect = pygame.Rect(start_x + col * spacing_x, start_y + row * spacing_y, img.get_width(), img.get_height())
+                    if (suit, rank) in unusable:  # or (suit, rank) in deck_selected:
+                        rect = pygame.Rect(start_x + col * spacing_x, start_y + row * spacing_y, img.get_width(),
+                                           img.get_height())
                         self.gray_overlay_(self.screen, rect)
 
             close_text = self.playerInfo.textFont2.render("Click anywhere to close", True, 'white')
@@ -511,22 +515,22 @@ class GameState(State):
         if events.type == pygame.MOUSEBUTTONDOWN and not self.playHandActive:
             mousePos = pygame.mouse.get_pos()
             # Iterate in reverse to select the top-most card first
-            for card in reversed(list(self.hand.keys())):
-                if self.hand[card].collidepoint(mousePos):
+            for card in reversed(list(self.cards.keys())):
+                if self.cards[card].collidepoint(mousePos):
                     if not card.isSelected:
                         if len(self.cardsSelectedList) < 5:
                             card.isSelected = True
-                            self.hand[card].y -= 50
+                            self.cards[card].y -= 50
                             self.cardsSelectedList.append(card)
                             self.select_sfx.play()
                     else:
                         card.isSelected = False
-                        self.hand[card].y += 50
+                        self.cards[card].y += 50
                         self.cardsSelectedList.remove(card)
                         self.deselect_sfx.play()
                     return  # Stop after interacting with one card
 
-    # Done (TASK 7) - Rewrite this function so that it calculates the player's gold reward *recursively*.
+    # DONE (TASK 7) - Rewrite this function so that it calculates the player's gold reward *recursively*.
     #   The recursion should progress through each step of the reward process (base reward, bonus for overkill, etc.)
     #   by calling itself with updated parameters or stages instead of using loops.
     #   Each recursive call should handle a single part of the reward logic, and the final base case should
@@ -537,26 +541,18 @@ class GameState(State):
     #     - A clear base case to stop recursion when all parts are done
     #   Avoid any for/while loops — recursion alone must handle the repetition.
     def calculate_gold_reward(self, playerInfo, stage=0):
+        curSubLevel = playerInfo.levelManager.curSubLevel
         if stage == 0:
-            base_gold = 0
-            if playerInfo.blind_type == "SMALL":
+            if curSubLevel.blind.name == "SMALL":
                 base_gold = 4
-            elif playerInfo.blind_type == "BIG":
+            elif curSubLevel.blind.name  == "BIG":
                 base_gold = 8
-            elif playerInfo.blind_type == "BOSS":
+            elif curSubLevel.blind.name  == "BOSS":
                 base_gold = 10
             return base_gold + self.calculate_gold_reward(playerInfo, stage=1)
         elif stage == 1:
-            score_difference = playerInfo.score - playerInfo.target_score
-            if score_difference < 0:
-                return 0
-            else:
-                if score_difference >= 10:
-                    return 1 + self.calculate_gold_reward(playerInfo, stage=1, score_difference_override = score_difference - 10)
-                else:
-                    return 0 + self.calculate_gold_reward(playerInfo, stage=2)
-        else:
-            return 0
+            bonus = min(5,max(0,((playerInfo.score - curSubLevel.blind.value)/curSubLevel.blind.value)*5))
+            return bonus
 
     def updateCards(self, posX, posY, cardsDict, cardsList, scale=1.5, spacing=90, baseYOffset=-20, leftShift=40):
         cardsDict.clear()
@@ -570,52 +566,74 @@ class GameState(State):
                 y -= 50
             cardsDict[card] = pygame.Rect(x, y, new_w, new_h)
 
-    # Done (TASK 2) - Implement a basic card-sorting system without using built-in sort functions.
+    # DONE (TASK 2) - Implement a basic card-sorting system without using built-in sort functions.
     #   Create a 'suitOrder' list (Hearts, Clubs, Diamonds, Spades), then use nested loops to compare each card
     #   with the ones after it. Depending on the mode, sort by rank first or suit first, swapping cards when needed
     #   until the entire hand is ordered correctly.
-
     def SortCards(self, sort_by: str = "suit"):
-        suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]
+        suitOrder = [Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS, Suit.SPADES]         # Define the order of suits
 
+        if sort_by == "rank":
+            for i in range(len(self.hand) - 1):
+                for j in range(i + 1, len(self.hand)):
 
-        cards = list(self.hand.keys())
-        n = len(cards)
+                    card1 = self.hand[i]
+                    card2 = self.hand[j]
 
-        for i in range(n - 1):
-            for j in range(i + 1, n):
-                card1 = cards[i]
-                card2 = cards[j]
+                    rank1 = card1.rank.value
+                    rank2 = card2.rank.value
+                    suit1 = card1.suit
+                    suit2 = card2.suit
 
-                if sort_by == "rank":
-                    if (
-                            card1.rank.value > card2.rank.value or
-                            (card1.rank.value == card2.rank.value and
-                            suitOrder.index(card1.suit) > suitOrder.index(card2.suit))
-                    ):
-                        cards[i], cards[j] = cards[j], cards[i]
+                    suit1_index = suitOrder.index(suit1)
+                    suit2_index = suitOrder.index(suit2)
 
-                else:
-                    if (
-                            suitOrder.index(card1.suit) > suitOrder.index(card2.suit) or
-                            (suitOrder.index(card1.suit) == suitOrder.index(card2.suit) and
-                            card1.rank.value > card2.rank.value)
-                    ):
-                        cards[i], cards[j] = cards[j], cards[i]
+                    if rank1 < rank2:
+                        temp = self.hand[i]
+                        self.hand[i] = self.hand[j]
+                        self.hand[j] = temp
 
-        self.hand = {card: self.hand[card] for card in cards}
+                    elif rank1 == rank2 and suit1_index < suit2_index:
+                        temp = self.hand[i]
+                        self.hand[i] = self.hand[j]
+                        self.hand[j] = temp
 
-        self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
+        else:
+            for i in range(len(self.hand) - 1):
+                for j in range(i + 1, len(self.hand)):
+
+                    card1 = self.hand[i]
+                    card2 = self.hand[j]
+
+                    rank1 = card1.rank.value
+                    rank2 = card2.rank.value
+                    suit1 = card1.suit
+                    suit2 = card2.suit
+
+                    suit1_index = suitOrder.index(suit1)
+                    suit2_index = suitOrder.index(suit2)
+
+                    if suit1_index < suit2_index:
+                        temp = self.hand[i]
+                        self.hand[i] = self.hand[j]
+                        self.hand[j] = temp
+
+                    elif suit1_index == suit2_index and rank1 < rank2:
+                        temp = self.hand[i]
+                        self.hand[i] = self.hand[j]
+                        self.hand[j] = temp
+
+        self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
 
     def checkHoverCards(self):
         mousePos = pygame.mouse.get_pos()
-        for card, rect in self.hand.items():
+        for card, rect in self.cards.items():
             if rect.collidepoint(mousePos):
                 break
-    
+
     def drawCardTooltip(self):
         mousePos = pygame.mouse.get_pos()
-        for card, rect in self.hand.items():
+        for card, rect in self.cards.items():
             if rect.collidepoint(mousePos):
                 tooltip_text = f"{card.rank.name.title()} of {card.suit.name.title()} ({card.chips} Chips)"
                 font = self.playerInfo.textFont1
@@ -640,10 +658,10 @@ class GameState(State):
                 tooltip_y = rect.y - tooltip_h - 10
                 self.screen.blit(tooltip_surf, (tooltip_x, tooltip_y))
                 break
-    
+
     # -------- Play Hand Logic -----------
     def playHand(self):
-        if self.playerInfo.amountOfHands == 0: # Check if last hand and failed the round
+        if self.playerInfo.amountOfHands == 0:  # Check if last hand and failed the round
             target_score = self.playerInfo.levelManager.curSubLevel.score
             if self.playerInfo.roundScore < target_score:
                 pygame.mixer.music.stop()
@@ -702,9 +720,9 @@ class GameState(State):
                     seq_start = arr[0]
                     cur_seq = [arr[0]]
                 else:
-                    if arr[i] == arr[i-1]:
+                    if arr[i] == arr[i - 1]:
                         continue
-                    if arr[i] == arr[i-1] + 1:
+                    if arr[i] == arr[i - 1] + 1:
                         consec += 1
                         cur_seq.append(arr[i])
                     else:
@@ -824,6 +842,7 @@ class GameState(State):
 
         # ------------------- Apply Joker effects -------------------
         owned = set(self.playerJokers)
+
         # Done (TASK 5.2): Let the Joker mayhem begin! Implement each Joker’s effect using the Joker table as reference.
         #   Follow this structure for consistency:
         #   if "joker card name" in owned:
@@ -843,19 +862,16 @@ class GameState(State):
             self.activated_jokers.add("Michael Myers")
 
         if "Fibonacci" in owned:
-            fib_ranks = {Rank.ACE, Rank.TWO, Rank.THREE, Rank.FIVE, Rank.EIGHT}
-            fib_count = 0
-
-            for c in sel:
-                if c.rank in fib_ranks:
-                    fib_count += 1
-
-            hand_mult += fib_count * 8
+            for hand in used_cards:
+                if "ACE" == hand.rank.name or 2 == hand.rank.value or 3 == hand.rank.value or 5 == hand.rank.value or 8 == hand.rank.value:
+                    hand_mult += 8
             self.activated_jokers.add("Fibonacci")
+
 
         if "Gauntlet" in owned:
             total_chips += 250
-            self.playerInfo.amountOfHands = max(0, self.playerInfo.amountOfHands - 2)
+            if self.playerInfo.amountOfHands == 3:
+                self.playerInfo.amountOfHands -=2
             self.activated_jokers.add("Gauntlet")
 
         if "Ogre" in owned:
@@ -863,19 +879,21 @@ class GameState(State):
             self.activated_jokers.add("Ogre")
 
         if "StrawHat" in owned:
-            hands_played = len(self.playedHandNameList)
-            total_chips += max(0, 100 - 5 * hands_played)
+            count = 100
+            total_chips += count
+            while count >= 0:
+                count -= 5
             self.activated_jokers.add("StrawHat")
 
         if "Hog Rider" in owned:
             if hand_name == "Straight":
                 total_chips += 100
-                self.activated_jokers.add("Hog Rider")
+            self.activated_jokers.add("Hog Rider")
 
         if "? Block" in owned:
             if len(used_cards) == 4:
                 total_chips+= 4
-                self.activated_jokers.add("? Block")
+            self.activated_jokers.add("? Block")
 
         if "Hogwarts" in owned:
             ace_count = 0
@@ -888,8 +906,11 @@ class GameState(State):
 
         if "802" in owned:
             if self.playerInfo.amountOfHands == 0:
-                procrastinate = True
+                total_chips = 2
+                hand_mult = 2
             self.activated_jokers.add("802")
+
+        procrastinate = False
 
         # commit modified player multiplier and chips
         self.playerInfo.playerMultiplier = hand_mult
@@ -918,47 +939,40 @@ class GameState(State):
             w, h = card.scaled_image.get_width(), card.scaled_image.get_height()
             self.cardsSelectedRect[card] = pygame.Rect(start_x + i * spacing, start_y, w, h)
 
-
-        if "The Joker" in owned:
-            hand_mult += 4
-            self.activated_jokers.add("The Joker")
-
-    # Done (TASK 4) - The function should remove one selected card from the player's hand at a time, calling itself
+    # DONE (TASK 4) - The function should remove one selected card from the player's hand at a time, calling itself
     #   again after each removal until no selected cards remain (base case). Once all cards have been
     #   discarded, draw new cards to refill the hand back to 8 cards. Use helper functions but AVOID using
     #   iterations (no for/while loops) — the recursion itself must handle repetition. After the
     #   recursion finishes, reset card selections, clear any display text or tracking lists, and
     #   update the visual layout of the player's hand.
     def discardCards(self, removeFromHand: bool):
+        if not self.cardsSelectedList:
+            if removeFromHand:
+                max_cards_in_hand = 8
+                remaining_cards = max_cards_in_hand - len(self.hand)
+                if remaining_cards > 0 and len(self.deck) > 0:
+                    if remaining_cards > len(self.deck):
+                        remaining_cards = len(self.deck)
 
-        if len(self.cardsSelectedList) == 0:
-            missing = 8 - len(self.hand)
-
-            if missing > 0:
-                new_cards = State.deckManager.dealCards(
-                    self.deck,
-                    missing,
-                    self.playerInfo.levelManager.surSublevel
-                )
-
-                self._addNewCards(new_cards)
-
-            self.cardsSelectedRect.clear()
-            self._resetSelections(list(self.hand.keys()))
-            self.cardsSelectedList.clear()
-
-            self.updateCards(400, 520, self.hand, self.hand, scale=1.2)
+                    if remaining_cards > 0:
+                        new_deck = State.deckManager.dealCards(
+                            self.deck,
+                            remaining_cards,
+                            self.playerInfo.levelManager.curSubLevel
+                        )
+                        self.hand += new_deck
+            self.cardsSelectedList = []
+            self.cardsSelectedRect = {}
+            self.updateCards(400, 520, self.cards, self.hand, scale=1.2)
             return
-
-        card = self.cardsSelectedList.pop(0)
-
-        if removeFromHand:
-            self.used.append(card)
-
-        if card in self.hand:
-            del self.hand[card]
-
-        card.isSelected = False
-
+        selected_card = self.cardsSelectedList.pop()
+        if hasattr(selected_card, 'isSelected'):
+            selected_card.isSelected = False
+        if removeFromHand and selected_card in self.hand:
+            self.hand.remove(selected_card)
+            self.used.append(selected_card)
+        if selected_card in self.cards:
+            del self.cards[selected_card]
+        if selected_card in self.cardsSelectedRect:
+            del self.cardsSelectedRect[selected_card]
         self.discardCards(removeFromHand)
-
